@@ -53,7 +53,7 @@ def list_handlers(update, context):
     chat = update.effective_chat
     user = update.effective_user
 
-    conn = connected(context.bot, update, chat, user.id, need_admin=False)
+    conn = connected(context.bot, update, chat, user.id, need_admin=True)
     if not conn is False:
         chat_id = conn
         chat_name = dispatcher.bot.getChat(conn).title
