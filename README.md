@@ -6,6 +6,7 @@ Modular NATURO Themed Telegram Bot for managing your group with additional featu
 
 [![Hinata](https://telegra.ph/file/d109f65ea011333525990.jpg)](https://telegram.dog/zoldycktmbot) 
 
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/PROHackerr/MissHinata)
 
 The following env variables are supported:
 
