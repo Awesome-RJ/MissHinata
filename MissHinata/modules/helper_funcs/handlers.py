@@ -4,10 +4,7 @@ from telegram import MessageEntity, Update
 from telegram.ext import CommandHandler, MessageHandler, RegexHandler, Filters
 from time import sleep
 
-if ALLOW_EXCL:
-    CMD_STARTERS = ('/', '!')
-else:
-    CMD_STARTERS = ('/',)
+CMD_STARTERS = ('/', '!') if ALLOW_EXCL else ('/', )
 
 
 class CustomCommandHandler(CommandHandler):
@@ -26,35 +23,36 @@ class CustomCommandHandler(CommandHandler):
                 | Filters.update.edited_channel_post)
 
     def check_update(self, update):
-        if isinstance(update, Update) and update.effective_message:
-            message = update.effective_message
+        if not isinstance(update, Update) or not update.effective_message:
+            return
+        message = update.effective_message
 
-            try:
-                user_id = update.effective_user.id
-            except:
-                user_id = None
+        try:
+            user_id = update.effective_user.id
+        except:
+            user_id = None
 
-            if user_id:
-                if sql.is_user_blacklisted(user_id):
-                    return False
+        if user_id and sql.is_user_blacklisted(user_id):
+            return False
 
-            if (message.entities and
+        if (message.entities and
                     message.entities[0].type == MessageEntity.BOT_COMMAND and
                     message.entities[0].offset == 0):
-                command = message.text[1:message.entities[0].length]
-                args = message.text.split()[1:]
-                command = command.split('@')
-                command.append(message.bot.username)
+            command = message.text[1:message.entities[0].length]
+            args = message.text.split()[1:]
+            command = command.split('@')
+            command.append(message.bot.username)
 
-                if not (command[0].lower() in self.command and
-                        command[1].lower() == message.bot.username.lower()):
-                    return None
+            if (
+                command[0].lower() not in self.command
+                or command[1].lower() != message.bot.username.lower()
+            ):
+                return None
 
-                filter_result = self.filters(update)
-                if filter_result:
-                    return args, filter_result
-                else:
-                    return False
+            if filter_result := self.filters(update):
+                return args, filter_result
+            else:
+                return False
 
     def handle_update(self, update, dispatcher, check_result, context=None):
         if context:
